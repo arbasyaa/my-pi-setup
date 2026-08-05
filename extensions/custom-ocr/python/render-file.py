@@ -83,7 +83,7 @@ def render_pdf(
 def render_image(
     path: Path, start: int, end: int, outdir: Path, max_side: int, warnings: list
 ):
-    from PIL import Image, ImageSequence
+    from PIL import Image, ImageOps, ImageSequence
 
     with Image.open(path) as image:
         frames = getattr(image, "n_frames", 1)
@@ -99,7 +99,8 @@ def render_image(
                     continue
                 if index > end:
                     break
-                pages.append(save_page(frame.copy(), index, outdir, max_side))
+                normalized = ImageOps.exif_transpose(frame.copy())
+                pages.append(save_page(normalized, index, outdir, max_side))
             return pages, frames
 
         if frames > 1:
@@ -110,7 +111,8 @@ def render_image(
         if start > 1:
             fail("Non-TIFF images are treated as a single page (the first frame).")
         image.seek(0)
-        return [save_page(image.copy(), 1, outdir, max_side)], 1
+        normalized = ImageOps.exif_transpose(image)
+        return [save_page(normalized, 1, outdir, max_side)], 1
 
 
 def main() -> None:
