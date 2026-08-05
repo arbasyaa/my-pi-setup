@@ -58,9 +58,9 @@ Private mode is fail-closed: workers run with `HF_HUB_OFFLINE=1` and only
 load weights that already exist locally. Download them once, ahead of time:
 
 ```bash
-uv tool run --from 'huggingface_hub[cli]' hf download mlx-community/DeepSeek-OCR-2-4bit \
+uv tool run --from huggingface_hub hf download mlx-community/DeepSeek-OCR-2-4bit \
   --local-dir ~/.cache/custom-ocr/models/DeepSeek-OCR-2-4bit
-uv tool run --from 'huggingface_hub[cli]' hf download mlx-community/Qwen3.5-4B-MLX-4bit \
+uv tool run --from huggingface_hub hf download mlx-community/Qwen3.5-4B-MLX-4bit \
   --local-dir ~/.cache/custom-ocr/models/Qwen3.5-4B-MLX-4bit
 ```
 

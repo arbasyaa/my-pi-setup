@@ -63,7 +63,7 @@ export function installInstructions(models: readonly string[]) {
   const commands = models
     .map(
       (modelId) =>
-        `  uv tool run --from 'huggingface_hub[cli]' hf download ${modelId} --local-dir ${modelInstallPath(modelId)}`,
+        `  uv tool run --from huggingface_hub hf download ${modelId} --local-dir ${modelInstallPath(modelId)}`,
     )
     .join("\n");
   return `Private mode needs local model weights (downloaded once, ahead of time — private parsing itself never touches the network):\n${commands}`;
