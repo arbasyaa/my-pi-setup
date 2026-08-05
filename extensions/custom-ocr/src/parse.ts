@@ -50,10 +50,7 @@ export interface ParseOutcome {
   readonly fullResultPath?: string;
 }
 
-export async function executeParse(
-  request: ParseRequest,
-  deps: ParseDeps,
-): Promise<ParseOutcome> {
+export async function executeParse(request: ParseRequest, deps: ParseDeps) {
   const range = normalizePageRange(request.pages);
   const file = await deps.resolveFile(request.path);
   const doc = await deps.render(file, range);
@@ -63,15 +60,18 @@ export async function executeParse(
         ? mergePageResults(await deps.runPrivate(doc, request.question))
         : await deps.runLuna(doc, request.question);
 
-    const truncation = truncateOutput(merged);
+    const warningPrefix =
+      doc.warnings.length > 0
+        ? `${doc.warnings.map((warning) => `⚠ ${warning}`).join("\n")}\n\n`
+        : "";
+    const decorated = `${warningPrefix}${merged}`;
+    const truncation = truncateOutput(decorated);
     let fullResultPath: string | undefined;
     let text = truncation.text;
     if (truncation.truncated) {
       fullResultPath = await deps.saveFullResult(merged);
-      text += `\n\n[output truncated at Pi's tool limits — full result saved to ${fullResultPath}]`;
-    }
-    if (doc.warnings.length > 0) {
-      text = `${doc.warnings.map((warning) => `⚠ ${warning}`).join("\n")}\n\n${text}`;
+      const notice = `\n\n[output truncated at Pi's tool limits — full result saved to ${fullResultPath}]`;
+      text = `${truncateOutput(decorated, notice).text}${notice}`;
     }
 
     return {
@@ -83,7 +83,7 @@ export async function executeParse(
       warnings: doc.warnings,
       truncated: truncation.truncated,
       fullResultPath,
-    };
+    } satisfies ParseOutcome;
   } finally {
     await doc.cleanup();
   }

@@ -246,13 +246,14 @@ export default function customOcr(pi: ExtensionAPI) {
         },
         runLuna: async (doc, question) => {
           progress(`Parsing ${doc.pages.length} page(s) with GPT-5.6 Luna…`);
-          const images = await Promise.all(
-            doc.pages.map(async (page) => ({
+          const images = [];
+          for (const page of doc.pages) {
+            images.push({
               page: page.page,
               data: (await readFile(page.path)).toString("base64"),
               mimeType: "image/png",
-            })),
-          );
+            });
+          }
           return parseWithLuna({
             modelRegistry: ctx.modelRegistry,
             images,

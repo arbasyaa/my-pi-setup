@@ -43,64 +43,65 @@ def save_page(image, page_number: int, outdir: Path, max_side: int) -> dict:
     return {"page": page_number, "path": str(path)}
 
 
-def render_pdf(path: Path, start: int, end: int, outdir: Path, max_side: int, warnings: list):
+def render_pdf(
+    path: Path, start: int, end: int, outdir: Path, max_side: int, warnings: list
+):
     import pymupdf
-
-    document = pymupdf.open(path)
-    total = document.page_count
-    if start > total:
-        fail(f"Page {start} does not exist: the PDF has {total} page(s).")
-    end = min(end, total)
-
     from PIL import Image
 
-    pages = []
-    for number in range(start, end + 1):
-        page = document[number - 1]
-        rect = page.rect
-        zoom = PDF_TARGET_DPI / 72.0
-        longest_pt = max(rect.width, rect.height)
-        if longest_pt * zoom > max_side:
-            zoom = max_side / longest_pt
-        pixmap = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
-        image = Image.frombytes("RGB", (pixmap.width, pixmap.height), pixmap.samples)
-        pages.append(save_page(image, number, outdir, max_side))
-    return pages, total
+    with pymupdf.open(path) as document:
+        total = document.page_count
+        if start > total:
+            fail(f"Page {start} does not exist: the PDF has {total} page(s).")
+        end = min(end, total)
+
+        pages = []
+        for number in range(start, end + 1):
+            page = document[number - 1]
+            rect = page.rect
+            zoom = PDF_TARGET_DPI / 72.0
+            longest_pt = max(rect.width, rect.height)
+            if longest_pt * zoom > max_side:
+                zoom = max_side / longest_pt
+            pixmap = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
+            image = Image.frombytes(
+                "RGB", (pixmap.width, pixmap.height), pixmap.samples
+            )
+            pages.append(save_page(image, number, outdir, max_side))
+        return pages, total
 
 
-def render_image(path: Path, start: int, end: int, outdir: Path, max_side: int, warnings: list):
+def render_image(
+    path: Path, start: int, end: int, outdir: Path, max_side: int, warnings: list
+):
     from PIL import Image, ImageSequence
 
-    image = Image.open(path)
-    frames = getattr(image, "n_frames", 1)
-    fmt = (image.format or "").upper()
+    with Image.open(path) as image:
+        frames = getattr(image, "n_frames", 1)
+        fmt = (image.format or "").upper()
 
-    if fmt == "GIF":
+        if fmt == "TIFF" and frames > 1:
+            if start > frames:
+                fail(f"Page {start} does not exist: the file has {frames} page(s).")
+            end = min(end, frames)
+            pages = []
+            for index, frame in enumerate(ImageSequence.Iterator(image), start=1):
+                if index < start:
+                    continue
+                if index > end:
+                    break
+                pages.append(save_page(frame.copy(), index, outdir, max_side))
+            return pages, frames
+
         if frames > 1:
+            label = fmt or "image"
             warnings.append(
-                f"Animated GIF with {frames} frames: using the first frame only."
+                f"Animated {label} with {frames} frames: using the first frame only."
             )
         if start > 1:
-            fail("GIFs are treated as a single page (the first frame).")
+            fail("Non-TIFF images are treated as a single page (the first frame).")
         image.seek(0)
         return [save_page(image.copy(), 1, outdir, max_side)], 1
-
-    if frames > 1:  # multi-page TIFF
-        if start > frames:
-            fail(f"Page {start} does not exist: the file has {frames} page(s).")
-        end = min(end, frames)
-        pages = []
-        for index, frame in enumerate(ImageSequence.Iterator(image), start=1):
-            if index < start:
-                continue
-            if index > end:
-                break
-            pages.append(save_page(frame.copy(), index, outdir, max_side))
-        return pages, frames
-
-    if start > 1:
-        fail("This file has a single page.")
-    return [save_page(image.copy(), 1, outdir, max_side)], 1
 
 
 def main() -> None:
@@ -118,11 +119,16 @@ def main() -> None:
     warnings: list = []
 
     try:
-        header = path.open("rb").read(4)
+        with path.open("rb") as handle:
+            header = handle.read(4)
         if header.startswith(b"%PDF"):
-            pages, total = render_pdf(path, args.start, args.end, outdir, args.max_side, warnings)
+            pages, total = render_pdf(
+                path, args.start, args.end, outdir, args.max_side, warnings
+            )
         else:
-            pages, total = render_image(path, args.start, args.end, outdir, args.max_side, warnings)
+            pages, total = render_image(
+                path, args.start, args.end, outdir, args.max_side, warnings
+            )
     except SystemExit:
         raise
     except Exception as error:  # noqa: BLE001 - surfaced to the extension

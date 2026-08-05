@@ -10,9 +10,5 @@ dependencies = [
 
 [project.optional-dependencies]
 private = [
-    "mlx-vlm>=0.1.21",
+    "mlx-vlm>=0.1.21; sys_platform == 'darwin' and platform_machine == 'arm64'",
 ]
-
-[tool.uv]
-# MLX only ships wheels for Apple silicon macOS.
-environments = ["sys_platform == 'darwin' and platform_machine == 'arm64'"]

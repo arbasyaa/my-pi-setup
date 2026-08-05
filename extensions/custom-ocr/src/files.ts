@@ -83,7 +83,7 @@ export function sniffKind(bytes: Uint8Array): SupportedKind | undefined {
  * Normalize an optional page range. Without a range the first 1–20 pages are
  * processed. Explicit ranges must be ascending and span at most 20 pages.
  */
-export function normalizePageRange(pages?: PageRange): PageRange {
+export function normalizePageRange(pages?: PageRange) {
   if (!pages) return { start: 1, end: MAX_PAGES };
   if (!Number.isInteger(pages.start) || !Number.isInteger(pages.end)) {
     throw new FileValidationError({
@@ -194,7 +194,7 @@ export const resolveFile = (rawPath: string, cwd: string) =>
   });
 
 /** Parse the JSON manifest emitted by python/render-file.py. */
-export function parseRenderManifest(stdout: string): RenderManifest {
+export function parseRenderManifest(stdout: string) {
   const lines = stdout.trim().split("\n");
   const last = lines.at(-1) ?? "";
   let value: unknown;
@@ -238,7 +238,25 @@ export function parseRenderManifest(stdout: string): RenderManifest {
           (warning): warning is string => typeof warning === "string",
         )
       : [],
-  };
+  } satisfies RenderManifest;
+}
+
+function rendererReportedError(stdout: string) {
+  const last = stdout.trim().split("\n").at(-1) ?? "";
+  try {
+    const value: unknown = JSON.parse(last);
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "error" in value &&
+      typeof value.error === "string"
+    ) {
+      return value.error;
+    }
+  } catch {
+    // Fall through to stderr/stdout diagnostics.
+  }
+  return undefined;
 }
 
 /**
@@ -277,6 +295,7 @@ export const renderFile = (options: {
     );
     if (result.code !== 0) {
       const detail =
+        rendererReportedError(result.stdout) ||
         result.stderr.trim().split("\n").slice(-4).join("\n") ||
         result.stdout.trim().slice(-400) ||
         `exit code ${result.code}`;

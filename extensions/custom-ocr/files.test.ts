@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { Effect } from "effect";
 import {
   FileValidationError,
   MAX_PAGES,
@@ -9,8 +10,10 @@ import {
   normalizePageRange,
   normalizeRequestPath,
   parseRenderManifest,
+  renderFile,
   sniffKind,
 } from "./src/files.ts";
+import { CommandRunner } from "./src/runtime.ts";
 
 test("normalizeRequestPath strips a leading @", () => {
   assert.equal(
@@ -116,5 +119,34 @@ test("parseRenderManifest surfaces renderer errors", () => {
   assert.throws(
     () => parseRenderManifest(JSON.stringify({ pages: [] })),
     /no pages/,
+  );
+});
+
+test("renderFile surfaces the renderer's structured error message", async () => {
+  const runner = CommandRunner.of({
+    run: () =>
+      Effect.succeed({
+        code: 1,
+        stderr: "",
+        stdout: JSON.stringify({
+          error: "Page 5 does not exist: the PDF has 3 page(s).",
+        }),
+      }),
+  });
+  const effect = renderFile({
+    file: { path: "/tmp/input.pdf", kind: "pdf", size: 100 },
+    range: { start: 5, end: 5 },
+    outDir: "/tmp/output",
+    pythonDir: "/tmp/python",
+  }).pipe(Effect.provideService(CommandRunner, runner));
+
+  await assert.rejects(
+    () => Effect.runPromise(effect),
+    (error: unknown) => {
+      const message = String(error);
+      assert.match(message, /Page 5 does not exist: the PDF has 3 page\(s\)\./);
+      assert.doesNotMatch(message, /\{"error"/);
+      return true;
+    },
   );
 });

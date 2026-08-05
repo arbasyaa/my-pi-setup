@@ -5,6 +5,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { ResolvedFile } from "./src/files.ts";
+import { OUTPUT_MAX_BYTES, OUTPUT_MAX_LINES } from "./src/output.ts";
 import {
   executeParse,
   type ParseDeps,
@@ -110,4 +111,35 @@ test("multi-page private results merge deterministically in page order", async (
   const outcome = await executeParse({ path: "doc.pdf" }, deps);
   assert.match(outcome.text, /## Page 1\n\nfirst[\s\S]*## Page 2\n\nsecond/);
   assert.match(outcome.text, /⚠ Animated GIF/);
+});
+
+test("final decorated output stays within Pi's limits and keeps the spill path", async () => {
+  const calls: string[] = [];
+  const fullPath = `/tmp/${"é".repeat(100)}.md`;
+  const deps = makeDeps(
+    {
+      render: async () => ({
+        ...makeDoc(calls),
+        warnings: [`Renderer warning ${"⚠".repeat(50)}`],
+      }),
+      runPrivate: async () => [
+        {
+          page: 1,
+          text: Array.from(
+            { length: OUTPUT_MAX_LINES + 100 },
+            (_, index) => `line ${index} ${"x".repeat(30)}`,
+          ).join("\n"),
+        },
+      ],
+      saveFullResult: async () => fullPath,
+    },
+    calls,
+  );
+
+  const outcome = await executeParse({ path: "scan.png" }, deps);
+
+  assert.equal(outcome.truncated, true);
+  assert.ok(Buffer.byteLength(outcome.text, "utf8") <= OUTPUT_MAX_BYTES);
+  assert.ok(outcome.text.split("\n").length <= OUTPUT_MAX_LINES);
+  assert.ok(outcome.text.endsWith(`full result saved to ${fullPath}]`));
 });

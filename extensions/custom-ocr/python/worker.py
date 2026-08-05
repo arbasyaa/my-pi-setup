@@ -21,8 +21,10 @@ import hmac
 import json
 import os
 import sys
+import tempfile
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 STATE = {"status": "loading", "error": None}
 MODEL = {}
@@ -54,6 +56,24 @@ def load_model(model_path: str) -> None:
         STATE["error"] = f"{type(error).__name__}: {error}"
         emit({"event": "error", "message": STATE["error"]})
         os._exit(1)
+
+
+def validated_image_path(raw_path: str) -> str:
+    try:
+        path = Path(raw_path).resolve(strict=True)
+    except OSError as error:
+        raise ValueError(f"image path is invalid: {error}") from error
+
+    temp_root = Path(tempfile.gettempdir()).resolve()
+    if (
+        not path.is_file()
+        or path.parent.parent != temp_root
+        or not path.parent.name.startswith("custom-ocr-")
+        or not path.name.startswith("page-")
+        or path.suffix.lower() != ".png"
+    ):
+        raise ValueError("image must be a rendered custom-ocr temporary PNG")
+    return str(path)
 
 
 def run_generate(body: dict) -> str:
@@ -96,7 +116,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def _authorized(self) -> bool:
         header = self.headers.get("Authorization", "")
-        return hmac.compare_digest(header, f"Bearer {TOKEN}")
+        return hmac.compare_digest(
+            header.encode("utf-8", "surrogateescape"),
+            f"Bearer {TOKEN}".encode(),
+        )
 
     def do_GET(self):  # noqa: N802 - http.server API
         if self.path != "/health":
@@ -124,6 +147,11 @@ class Handler(BaseHTTPRequestHandler):
                 body.get("image"), str
             ):
                 self._reply(400, {"error": "prompt and image are required"})
+                return
+            try:
+                body["image"] = validated_image_path(body["image"])
+            except ValueError as error:
+                self._reply(400, {"error": str(error)})
                 return
             with INFERENCE_LOCK:
                 text = run_generate(body)

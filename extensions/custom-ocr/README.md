@@ -34,11 +34,13 @@ parse-file report.pdf                pages={start: 3, end: 7}
 - Strips a leading `@`, expands `~`, resolves relative paths against the
   session cwd, and canonicalizes with `realpath`.
 - PDFs/multi-page TIFFs process up to 20 pages per call (pages 1–20 when no
-  range is given). Animated GIFs use the first frame with a warning.
+  range is given). Animated GIF, WebP, and PNG files use the first frame with
+  a warning.
 - Without `question`, returns exact text, visual structure, notable state,
   and uncertainty.
 - Output is truncated at Pi's tool limits (50 KB / 2,000 lines); full results
-  are saved to an owner-only file under `~/.cache/custom-ocr/results/`.
+  are saved to an owner-only file under `~/.cache/custom-ocr/results/`, with
+  the newest 100 files retained.
 
 ## `/private-image`
 
@@ -72,7 +74,8 @@ missing.)
 - Two persistent MLX worker processes (one per model — switching models in a
   single MLX-VLM server evicts the previous model).
 - Bound to `127.0.0.1` on randomly allocated ports; every request requires a
-  per-session bearer token passed through the environment.
+  per-worker bearer token passed through the environment, and workers accept
+  only rendered PNGs from custom-ocr's private temporary directories.
 - Hard offline flags (`HF_HUB_OFFLINE`, `TRANSFORMERS_OFFLINE`, …); file
   contents never appear in command-line arguments.
 - One inference request active at a time.

@@ -4,7 +4,7 @@
  * - Each model gets its own worker process (switching models in one MLX-VLM
  *   server evicts the previous model).
  * - Workers bind to 127.0.0.1 on randomly allocated ports and require a
- *   per-session bearer token passed through the environment.
+ *   per-worker bearer token passed through the environment.
  * - Hugging Face offline flags are forced so a worker can never download
  *   weights or call out; missing weights are a hard, descriptive error.
  * - One inference request is active at a time; cancellation kills both
@@ -167,7 +167,7 @@ export class PrivateWorkerManager {
     this.pythonDir = pythonDir;
   }
 
-  status(): WorkerStatusReport[] {
+  status() {
     return (Object.keys(WORKER_MODELS) as WorkerName[]).map((name) => {
       const modelId = WORKER_MODELS[name];
       const worker = this.workers.get(name);
@@ -200,7 +200,7 @@ export class PrivateWorkerManager {
     );
   }
 
-  private ensureWorker(name: WorkerName): WorkerHandle {
+  private ensureWorker(name: WorkerName) {
     const existing = this.workers.get(name);
     if (existing && existing.status !== "failed") return existing;
     if (existing) this.stopWorker(existing);
@@ -261,7 +261,7 @@ export class PrivateWorkerManager {
         handle.status = "failed";
         handle.error = message;
         this.stopWorker(handle);
-        this.workers.delete(name);
+        if (this.workers.get(name) === handle) this.workers.delete(name);
         rejectPromise(
           new PrivateModeError(
             `${name} worker (${modelId}) failed: ${message}`,
@@ -301,7 +301,7 @@ export class PrivateWorkerManager {
         } else {
           handle.status = "failed";
           handle.error = `worker exited with code ${code}`;
-          this.workers.delete(name);
+          if (this.workers.get(name) === handle) this.workers.delete(name);
         }
       });
     });
@@ -395,6 +395,9 @@ export class PrivateWorkerManager {
       // Already gone.
     }
     const escalation = setTimeout(() => {
+      if (worker.child.exitCode !== null || worker.child.signalCode !== null) {
+        return;
+      }
       try {
         process.kill(-pid, "SIGKILL");
       } catch {
