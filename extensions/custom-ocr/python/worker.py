@@ -39,8 +39,11 @@ def load_model(model_path: str) -> None:
         from mlx_vlm import load
         from mlx_vlm.utils import load_config
 
-        model, processor = load(model_path, trust_remote_code=True)
-        config = load_config(model_path, trust_remote_code=True)
+        # trust_remote_code=False: mlx-vlm ships native implementations for
+        # these model types; the repo's custom (torch-based) code must never
+        # run, and this also avoids the interactive trust prompt.
+        model, processor = load(model_path, trust_remote_code=False)
+        config = load_config(model_path)
         MODEL["model"] = model
         MODEL["processor"] = processor
         MODEL["config"] = config

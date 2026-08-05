@@ -26,9 +26,12 @@ export function lunaUserPrompt(
   return `${pages}\n\n${ANALYSIS_INSTRUCTIONS}`;
 }
 
-/** Prompt for the DeepSeek-OCR transcription pass (one page at a time). */
-export const OCR_PROMPT =
-  "Transcribe all text in this image exactly as written. Preserve reading order, line breaks, and table structure. Output only the transcription.";
+/**
+ * Prompt for the DeepSeek-OCR transcription pass (one page at a time).
+ * DeepSeek-OCR is prompt-sensitive: verbose instructions make it emit
+ * nothing. This is its canonical document-transcription prompt.
+ */
+export const OCR_PROMPT = "Convert the document to markdown.";
 
 /** Prompt for the Qwen fusion pass: page image + OCR evidence + question. */
 export function fusionPrompt(ocrText: string, question: string | undefined) {
