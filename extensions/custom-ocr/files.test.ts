@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { homedir } from "node:os";
+import { mkdtemp, realpath, rm, symlink, writeFile } from "node:fs/promises";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { Effect } from "effect";
@@ -11,6 +12,7 @@ import {
   normalizeRequestPath,
   parseRenderManifest,
   renderFile,
+  resolveFile,
   sniffKind,
 } from "./src/files.ts";
 import { CommandRunner } from "./src/runtime.ts";
@@ -43,6 +45,28 @@ test("looksLikeUrl detects URL schemes", () => {
   assert.equal(looksLikeUrl("file:///tmp/a.png"), true);
   assert.equal(looksLikeUrl("/tmp/https-notes.png"), false);
   assert.equal(looksLikeUrl("C:relative-ish"), false);
+});
+
+test("resolveFile stats and returns the canonical symlink target", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "custom-ocr-file-test-"));
+  try {
+    const target = join(directory, "target.png");
+    const link = join(directory, "scan.png");
+    const contents = Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      Buffer.from("payload"),
+    ]);
+    await writeFile(target, contents);
+    await symlink(target, link);
+
+    const resolved = await Effect.runPromise(resolveFile(link, directory));
+
+    assert.equal(resolved.path, await realpath(target));
+    assert.equal(resolved.size, contents.length);
+    assert.equal(resolved.kind, "png");
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 test("sniffKind identifies supported types by magic bytes", () => {

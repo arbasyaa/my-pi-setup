@@ -86,6 +86,48 @@ test("luna mode never calls the private pipeline", async () => {
   assert.ok(!calls.includes("private"));
 });
 
+test("cleanup failures do not replace successful output", async () => {
+  const calls: string[] = [];
+  const deps = makeDeps(
+    {
+      render: async () => ({
+        ...makeDoc(calls),
+        cleanup: async () => {
+          throw new Error("cleanup failed");
+        },
+      }),
+    },
+    calls,
+  );
+
+  const outcome = await executeParse({ path: "scan.png" }, deps);
+
+  assert.equal(outcome.text, "local result");
+});
+
+test("cleanup failures do not replace backend errors", async () => {
+  const calls: string[] = [];
+  const deps = makeDeps(
+    {
+      render: async () => ({
+        ...makeDoc(calls),
+        cleanup: async () => {
+          throw new Error("cleanup failed");
+        },
+      }),
+      runPrivate: async () => {
+        throw new Error("backend failed");
+      },
+    },
+    calls,
+  );
+
+  await assert.rejects(
+    () => executeParse({ path: "scan.png" }, deps),
+    /backend failed/,
+  );
+});
+
 test("multi-page private results merge deterministically in page order", async () => {
   const calls: string[] = [];
   const deps = makeDeps(

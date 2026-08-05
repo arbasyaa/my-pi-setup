@@ -85,6 +85,8 @@ export async function executeParse(request: ParseRequest, deps: ParseDeps) {
       fullResultPath,
     } satisfies ParseOutcome;
   } finally {
-    await doc.cleanup();
+    // Cleanup is best-effort after bounded retries in the concrete renderer;
+    // it must not replace the OCR result or the actionable backend error.
+    await doc.cleanup().catch(() => {});
   }
 }

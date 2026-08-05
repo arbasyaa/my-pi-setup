@@ -193,11 +193,16 @@ export class PrivateWorkerManager {
     if (missing.length > 0) {
       throw new PrivateModeError(installInstructions(missing));
     }
-    await Promise.all(
-      (Object.keys(WORKER_MODELS) as WorkerName[]).map((name) =>
-        raceAbort(this.ensureWorker(name).loaded, signal),
-      ),
-    );
+    try {
+      await Promise.all(
+        (Object.keys(WORKER_MODELS) as WorkerName[]).map((name) =>
+          raceAbort(this.ensureWorker(name).loaded, signal),
+        ),
+      );
+    } catch (error) {
+      if (signal?.aborted) this.stopAll();
+      throw error;
+    }
   }
 
   private ensureWorker(name: WorkerName) {
@@ -328,7 +333,12 @@ export class PrivateWorkerManager {
   ) {
     const task = async () => {
       const worker = this.ensureWorker(name);
-      await raceAbort(worker.loaded, signal);
+      try {
+        await raceAbort(worker.loaded, signal);
+      } catch (error) {
+        if (signal?.aborted) this.stopAll();
+        throw error;
+      }
       if (worker.port === undefined) {
         throw new PrivateModeError(`${name} worker has no port.`);
       }

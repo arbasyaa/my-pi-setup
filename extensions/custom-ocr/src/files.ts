@@ -145,12 +145,19 @@ export const resolveFile = (rawPath: string, cwd: string) =>
       });
     }
     const normalized = normalizeRequestPath(rawPath, cwd);
-
-    const stats = yield* Effect.tryPromise({
-      try: () => stat(normalized),
+    const canonical = yield* Effect.tryPromise({
+      try: () => realpath(normalized),
       catch: () =>
         new FileValidationError({
           message: `File not found: ${normalized}`,
+        }),
+    });
+
+    const stats = yield* Effect.tryPromise({
+      try: () => stat(canonical),
+      catch: (cause) =>
+        new FileValidationError({
+          message: `Could not inspect file: ${cause instanceof Error ? cause.message : String(cause)}`,
         }),
     });
     if (stats.isDirectory()) {
@@ -173,14 +180,6 @@ export const resolveFile = (rawPath: string, cwd: string) =>
         message: `${normalized} is ${formatBytes(stats.size)}; the maximum supported size is ${formatBytes(MAX_FILE_BYTES)}.`,
       });
     }
-
-    const canonical = yield* Effect.tryPromise({
-      try: () => realpath(normalized),
-      catch: (cause) =>
-        new FileValidationError({
-          message: `Could not resolve path: ${cause instanceof Error ? cause.message : String(cause)}`,
-        }),
-    });
 
     const bytes = yield* sniffFile(canonical);
     const kind = sniffKind(bytes);

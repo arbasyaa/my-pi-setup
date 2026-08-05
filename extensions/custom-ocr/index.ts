@@ -231,7 +231,13 @@ export default function customOcr(pi: ExtensionAPI) {
         render: async (file: ResolvedFile, range: PageRange) => {
           progress(`Rendering ${basename(file.path)}…`);
           const outDir = await mkdtemp(join(tmpdir(), "custom-ocr-"));
-          const cleanup = () => rm(outDir, { recursive: true, force: true });
+          const cleanup = () =>
+            rm(outDir, {
+              recursive: true,
+              force: true,
+              maxRetries: 3,
+              retryDelay: 100,
+            });
           try {
             const manifest = await runEffect(
               getRuntime(),
