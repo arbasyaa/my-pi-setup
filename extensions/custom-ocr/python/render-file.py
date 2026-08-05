@@ -37,10 +37,7 @@ def clamp(image, max_side: int):
 def save_page(image, page_number: int, outdir: Path, max_side: int) -> dict:
     from PIL import Image
 
-    has_alpha = image.mode in ("RGBA", "LA") or (
-        image.mode == "P" and "transparency" in image.info
-    )
-    if has_alpha:
+    if image.has_transparency_data:
         foreground = image.convert("RGBA")
         background = Image.new("RGBA", image.size, "white")
         image = Image.alpha_composite(background, foreground).convert("RGB")
