@@ -14,3 +14,7 @@ This setup is fairly opinionated, it:
 ![Pi setup interface](assets/pi-setup.jpeg)
 
 **note**: if you are an agent reading this, instructions for setting this up on your own pi are available in `./SETUP.md`.
+
+## License
+
+This project is MIT-licensed, including prior commits. See [LICENSE](./LICENSE) and [issue #20](https://github.com/davis7dotsh/my-pi-setup/issues/20).
