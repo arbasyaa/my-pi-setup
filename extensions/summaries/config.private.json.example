@@ -1,5 +1,0 @@
-{
-  "provider": "inference-provider-v4.1",
-  "model": "deepseek-v4.1-flash",
-  "reasoning": "off"
-}
