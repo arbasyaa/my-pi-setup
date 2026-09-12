@@ -48,7 +48,7 @@
     },
     "agentrouter": {
       "name": "AgentRouter (DeepSeek)",
-      "baseUrl": "https://agentrouter.org/v1/",
+      "baseUrl": "https://agentrouter.org/v1",
       "apiKey": "sk-YOUR_KEY_HERE",
       "api": "openai-completions",
       "headers": {
@@ -74,7 +74,7 @@
     },
     "agentrouter-glm": {
       "name": "AgentRouter (GLM)",
-      "baseUrl": "https://agentrouter.org/v1/",
+      "baseUrl": "https://agentrouter.org/v1",
       "apiKey": "sk-YOUR_KEY_HERE",
       "api": "openai-completions",
       "headers": {
