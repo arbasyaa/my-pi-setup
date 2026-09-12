@@ -47,7 +47,7 @@
       ]
     },
     "agentrouter": {
-      "name": "AgentRouter",
+      "name": "AgentRouter (DeepSeek)",
       "baseUrl": "https://agentrouter.org/v1/",
       "apiKey": "sk-YOUR_KEY_HERE",
       "api": "openai-completions",
@@ -66,6 +66,42 @@
           "id": "deepseek-v4-flash",
           "name": "DeepSeek V4 Flash (AgentRouter)",
           "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 1000000,
+          "maxTokens": 64000
+        }
+      ]
+    },
+    "agentrouter-glm": {
+      "name": "AgentRouter (GLM)",
+      "baseUrl": "https://agentrouter.org/v1/",
+      "apiKey": "sk-YOUR_KEY_HERE",
+      "api": "openai-completions",
+      "headers": {
+        "User-Agent": "Cline/1.0"
+      },
+      "compat": {
+        "supportsStore": false,
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": true,
+        "maxTokensField": "max_tokens",
+        "requiresReasoningContentOnAssistantMessages": true,
+        "thinkingFormat": "openai"
+      },
+      "models": [
+        {
+          "id": "glm-5.3",
+          "name": "GLM-5.3 (AgentRouter)",
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "off": null,
+            "minimal": null,
+            "low": "low",
+            "medium": "low",
+            "high": "high",
+            "xhigh": "high",
+            "max": "max"
+          },
           "input": ["text"],
           "contextWindow": 1000000,
           "maxTokens": 64000
