@@ -1,0 +1,16 @@
+{
+  "theme": "github-dark-default",
+  "packages": [
+    "npm:pi-mcp-adapter",
+    "npm:pi-web-access",
+    "npm:pi-subagents",
+    "npm:@narumitw/pi-btw",
+    "npm:@narumitw/pi-plan-mode",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:@dietrichgebert/ponytail",
+    "npm:@bacnh85/pi-ux",
+    "npm:@narumitw/pi-lsp"
+  ],
+  "lastChangelogVersion": "0.85.1"
+}

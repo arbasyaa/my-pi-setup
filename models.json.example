@@ -1,0 +1,76 @@
+{
+  "providers": {
+    "9inference-v4.1": {
+      "name": "9inference v4.1",
+      "baseUrl": "https://9inference.cloud/v1/package",
+      "apiKey": "sk_live_YOUR_KEY_HERE",
+      "api": "openai-completions",
+      "compat": {
+        "supportsStore": false,
+        "supportsDeveloperRole": false,
+        "maxTokensField": "max_tokens",
+        "requiresReasoningContentOnAssistantMessages": true,
+        "thinkingFormat": "deepseek"
+      },
+      "models": [
+        {
+          "id": "deepseek-v4.1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 1000000,
+          "maxTokens": 64000
+        }
+      ]
+    },
+    "9inference-v4": {
+      "name": "9inference v4",
+      "baseUrl": "https://9inference.cloud/v1/package",
+      "apiKey": "sk_live_YOUR_KEY_HERE",
+      "api": "openai-completions",
+      "compat": {
+        "supportsStore": false,
+        "supportsDeveloperRole": false,
+        "maxTokensField": "max_tokens",
+        "requiresReasoningContentOnAssistantMessages": true,
+        "thinkingFormat": "deepseek"
+      },
+      "models": [
+        {
+          "id": "deepseek-v4-flash-vision-exp",
+          "name": "DeepSeek V4 Flash Vision Exp",
+          "reasoning": true,
+          "input": ["text", "image"],
+          "contextWindow": 1000000,
+          "maxTokens": 64000
+        }
+      ]
+    },
+    "agentrouter": {
+      "name": "AgentRouter",
+      "baseUrl": "https://agentrouter.org/v1/",
+      "apiKey": "sk-YOUR_KEY_HERE",
+      "api": "openai-completions",
+      "headers": {
+        "User-Agent": "Cline/1.0"
+      },
+      "compat": {
+        "supportsStore": false,
+        "supportsDeveloperRole": false,
+        "maxTokensField": "max_tokens",
+        "requiresReasoningContentOnAssistantMessages": true,
+        "thinkingFormat": "deepseek"
+      },
+      "models": [
+        {
+          "id": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash (AgentRouter)",
+          "reasoning": true,
+          "input": ["text"],
+          "contextWindow": 1000000,
+          "maxTokens": 64000
+        }
+      ]
+    }
+  }
+}
