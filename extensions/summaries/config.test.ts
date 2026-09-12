@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { DEFAULT_SUMMARY_CONFIG, parseSummaryConfig } from "./src/config.ts";
 
-test("summary config defaults to Codex Luna at medium reasoning", () => {
+test("summary config defaults to 9inference DeepSeek Flash at off reasoning", () => {
   assert.deepEqual(parseSummaryConfig(undefined), DEFAULT_SUMMARY_CONFIG);
   assert.deepEqual(DEFAULT_SUMMARY_CONFIG, {
-    provider: "openai-codex",
-    model: "gpt-5.6-luna",
-    reasoning: "medium",
+    provider: "9inference-v4.1",
+    model: "deepseek-v4.1-flash",
+    reasoning: "off",
   });
 });
 

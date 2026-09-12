@@ -29,9 +29,9 @@ export interface SummaryConfig {
 }
 
 export const DEFAULT_SUMMARY_CONFIG: SummaryConfig = {
-  provider: "openai-codex",
-  model: "gpt-5.6-luna",
-  reasoning: "medium",
+  provider: "9inference-v4.1",
+  model: "deepseek-v4.1-flash",
+  reasoning: "off",
 };
 
 const extensionDirectory = dirname(dirname(fileURLToPath(import.meta.url)));
