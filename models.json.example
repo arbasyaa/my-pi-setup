@@ -48,7 +48,7 @@
     },
     "provider-b": {
       "name": "Provider B (DeepSeek)",
-      "baseUrl": "https://provider-b.org/v1/",
+      "baseUrl": "https://provider-b.org/v1",
       "apiKey": "sk-YOUR_KEY_HERE",
       "api": "openai-completions",
       "headers": {
@@ -74,7 +74,7 @@
     },
     "provider-b-glm": {
       "name": "Provider B (GLM)",
-      "baseUrl": "https://provider-b.org/v1/",
+      "baseUrl": "https://provider-b.org/v1",
       "apiKey": "sk-YOUR_KEY_HERE",
       "api": "openai-completions",
       "headers": {
