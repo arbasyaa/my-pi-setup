@@ -7,7 +7,7 @@
 
 ### 1. Anti-Overengineering & YAGNI (`ponytail`)
 Follow lazy senior developer discipline: the best code is the code never written.
-- **Skill**: `skills/ponytail/SKILL.md`
+- **Package & Skill**: `@dietrichgebert/ponytail` (Commands: `/ponytail lite|full|ultra`)
 - The Ladder: Does this need to exist? (YAGNI) -> Reuse existing codebase -> Use standard library -> Native platform feature -> Installed dependency -> Can it be one line? -> Minimum code that works.
 - No unrequested abstractions, no avoidable dependencies, no premature boilerplate.
 
