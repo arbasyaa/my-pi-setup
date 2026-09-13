@@ -11,6 +11,13 @@ Follow lazy senior developer discipline: the best code is the code never written
 - The Ladder: Does this need to exist? (YAGNI) -> Reuse existing codebase -> Use standard library -> Native platform feature -> Installed dependency -> Can it be one line? -> Minimum code that works.
 - No unrequested abstractions, no avoidable dependencies, no premature boilerplate.
 
+### 1b. Deferral→Debt (auto-capture)
+When the user defers any work ("nanti dulu", "later", "skip dulu", "tunda", "not now", "park that"), capture it instead of dropping it:
+- If it applies to a specific file: add a `ponytail: <ceiling>, <upgrade>` comment at the relevant spot.
+- Append a row to `PONYTAIL-DEBT.md`: `<file>:<line>, <what was deferred>. ceiling: <limit>. upgrade: <trigger>`.
+- Always name an `upgrade` trigger. A `ponytail:` entry without one is tagged `no-trigger` (rots silently).
+- Review the ledger on demand via `/ponytail-debt`.
+
 ### 2. Systematic Debugging & Root Cause First (`systematic-debugging`)
 Stop speculative edits and guess-and-check fixing.
 - **Skill**: `skills/systematic-debugging/SKILL.md`

@@ -7,6 +7,7 @@ bin/
 # Pi runtime and private state
 sessions/
 /workflows/
+web-search-cache/
 auth.json
 trust.json
 models.json
