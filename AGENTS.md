@@ -2,6 +2,31 @@
 - avoid explicit return types unless absolutely needed
 - `as any` should be an absolute last resort. always use real type safety. lean on type inference instead of manually writing new types over and over again
 
+<!-- engineering-discipline:start -->
+## Core Engineering Discipline
+
+### 1. Anti-Overengineering & YAGNI (`ponytail`)
+Follow lazy senior developer discipline: the best code is the code never written.
+- **Skill**: `skills/ponytail/SKILL.md`
+- The Ladder: Does this need to exist? (YAGNI) -> Reuse existing codebase -> Use standard library -> Native platform feature -> Installed dependency -> Can it be one line? -> Minimum code that works.
+- No unrequested abstractions, no avoidable dependencies, no premature boilerplate.
+
+### 2. Systematic Debugging & Root Cause First (`systematic-debugging`)
+Stop speculative edits and guess-and-check fixing.
+- **Skill**: `skills/systematic-debugging/SKILL.md`
+- Protocol: Reproduce failure -> Trace data flow -> Formulate testable hypothesis -> Fix root cause (audit all callers) -> Verify and prevent regression.
+
+### 3. Application Security & Secrets Guard (`security-guard`)
+Defensive coding and zero-trust security.
+- **Skill**: `skills/security-guard/SKILL.md`
+- Never hardcode secrets/keys (enforce `.env`). Prevent SQL/command/XSS injection. Validate all boundary inputs with schemas. Enforce server-side authorization.
+
+### 4. Backend & Database Performance (`backend-db-discipline`)
+High-performance APIs and persistence layers.
+- **Skill**: `skills/backend-db-discipline/SKILL.md`
+- Anti N+1 queries (eager loading / batching). Pagination by default on all growing collections. Ensure indexes on filtered/joined columns. Clean up streams/connections in `finally` blocks.
+<!-- engineering-discipline:end -->
+
 <!-- frontend-architecture:start -->
 ## Frontend Architecture: Taste Skill (Aesthetic Engine) + Anti-Slop (Quality Gate)
 
