@@ -1,9 +1,9 @@
 {
   "providers": {
-    "inference-provider-v4.1": {
-      "name": "inference-provider v4.1",
-      "baseUrl": "https://inference-provider.cloud/v1/package",
-      "apiKey": "sk_live_YOUR_KEY_HERE",
+    "openai-compatible": {
+      "name": "OpenAI-Compatible Provider",
+      "baseUrl": "https://api.example.com/v1",
+      "apiKey": "YOUR_API_KEY_HERE",
       "api": "openai-completions",
       "compat": {
         "supportsStore": false,
@@ -14,31 +14,8 @@
       },
       "models": [
         {
-          "id": "deepseek-v4.1-flash",
-          "name": "DeepSeek V4.1 Flash",
-          "reasoning": true,
-          "input": ["text"],
-          "contextWindow": 1000000,
-          "maxTokens": 64000
-        }
-      ]
-    },
-    "inference-provider-v4": {
-      "name": "inference-provider v4",
-      "baseUrl": "https://inference-provider.cloud/v1/package",
-      "apiKey": "sk_live_YOUR_KEY_HERE",
-      "api": "openai-completions",
-      "compat": {
-        "supportsStore": false,
-        "supportsDeveloperRole": false,
-        "maxTokensField": "max_tokens",
-        "requiresReasoningContentOnAssistantMessages": true,
-        "thinkingFormat": "deepseek"
-      },
-      "models": [
-        {
-          "id": "deepseek-v4-flash-vision-exp",
-          "name": "DeepSeek V4 Flash Vision Exp",
+          "id": "model-name",
+          "name": "Model Display Name",
           "reasoning": true,
           "input": ["text", "image"],
           "contextWindow": 1000000,
@@ -46,62 +23,21 @@
         }
       ]
     },
-    "provider-b": {
-      "name": "Provider B (DeepSeek)",
-      "baseUrl": "https://provider-b.org/v1",
-      "apiKey": "sk-YOUR_KEY_HERE",
+    "local-router": {
+      "name": "Local Router",
+      "baseUrl": "http://localhost:PORT/v1",
+      "apiKey": "YOUR_API_KEY_HERE",
       "api": "openai-completions",
-      "headers": {
-        "User-Agent": "Cline/1.0"
-      },
       "compat": {
         "supportsStore": false,
         "supportsDeveloperRole": false,
-        "maxTokensField": "max_tokens",
-        "requiresReasoningContentOnAssistantMessages": true,
-        "thinkingFormat": "deepseek"
+        "maxTokensField": "max_tokens"
       },
       "models": [
         {
-          "id": "deepseek-v4-flash",
-          "name": "DeepSeek V4 Flash (Provider B)",
+          "id": "local-model",
+          "name": "Local Model",
           "reasoning": true,
-          "input": ["text"],
-          "contextWindow": 1000000,
-          "maxTokens": 64000
-        }
-      ]
-    },
-    "provider-b-glm": {
-      "name": "Provider B (GLM)",
-      "baseUrl": "https://provider-b.org/v1",
-      "apiKey": "sk-YOUR_KEY_HERE",
-      "api": "openai-completions",
-      "headers": {
-        "User-Agent": "Cline/1.0"
-      },
-      "compat": {
-        "supportsStore": false,
-        "supportsDeveloperRole": false,
-        "supportsReasoningEffort": true,
-        "maxTokensField": "max_tokens",
-        "requiresReasoningContentOnAssistantMessages": true,
-        "thinkingFormat": "openai"
-      },
-      "models": [
-        {
-          "id": "glm-5.3",
-          "name": "GLM-5.3 (Provider B)",
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "off": null,
-            "minimal": null,
-            "low": "low",
-            "medium": "low",
-            "high": "high",
-            "xhigh": "high",
-            "max": "max"
-          },
           "input": ["text"],
           "contextWindow": 1000000,
           "maxTokens": 64000
